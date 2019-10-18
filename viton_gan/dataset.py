@@ -18,10 +18,9 @@ class DatasetBase(Dataset):
         self.fine_height = opt.fine_height
         self.fine_width = opt.fine_width
         self.radius = opt.radius
-        self.transform = transforms.Compose([
-                transforms.ToTensor(), # [0,255] to [0,1]
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) # [0,1] to [-1,1]
-                ]) 
+        self.transform = transforms.Compose([ \
+        transforms.ToTensor(), \
+        transforms.Normalize((0.5,), (0.5,))])
         
         person_names = []
         cloth_names = []
