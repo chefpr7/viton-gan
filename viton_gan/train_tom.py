@@ -11,6 +11,7 @@ from networks import UnetGenerator, VGGLoss, load_checkpoint, save_checkpoint, N
 from visualize import board_add_images
 from utils import mkdir
 from ranger import Ranger
+from skimage import measure
 
 class TOMTrainer:
     def __init__(self, gen, dis, dataloader_train, dataloader_val, gpu_id, log_freq, save_dir, n_step, optimizer='adam'):
@@ -83,6 +84,7 @@ class TOMTrainer:
             l_l1 = self.criterionL1(tryon_person, person)
             l_mask = self.criterionL1(composition_mask, cloth_mask)
             l_vgg = self.criterionVGG(tryon_person, person)
+            metric = measure.compare_ssim(tryon_person, person, multichannel=True)
             dis_fake = self.dis(torch.cat([data['feature'], cloth, tryon_person],1)) # Dis forward
             l_adv = self.criterionAdv(dis_fake, real)
             loss_g = l_l1 + l_vgg + l_mask + l_adv/batch_size
@@ -107,7 +109,8 @@ class TOMTrainer:
                 'avg_loss': total_loss/(i+1),
                 'loss_recon': l_l1.item() + l_vgg.item() + l_mask.item(),
                 'loss_g': l_adv.item(),
-                'loss_d': loss_d.item()
+                'loss_d': loss_d.item(),
+                'ssim' : metric
             }
             if train and i%self.log_freq==0:
                 data_iter.write(str(post_fix))
