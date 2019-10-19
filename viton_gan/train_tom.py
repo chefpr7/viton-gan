@@ -28,8 +28,8 @@ class TOMTrainer:
            self.optim_g = torch.optim.Adam(gen.parameters(), lr=1e-4, betas=(0.5, 0.999))
            self.optim_d = torch.optim.Adam(dis.parameters(), lr=1e-4, betas=(0.5, 0.999))
         elif optimizer == 'ranger' :
-           self.optim_g = Ranger()
-           self.optim_d = Ranger()
+           self.optim_g = Ranger(gen.parameters())
+           self.optim_d = Ranger(dis.parameters())
             
         self.criterionL1 = nn.L1Loss()
         self.criterionVGG = VGGLoss()
