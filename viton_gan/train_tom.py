@@ -10,9 +10,10 @@ from dataset import TOMDataset
 from networks import UnetGenerator, VGGLoss, load_checkpoint, save_checkpoint, NLayerDiscriminator
 from visualize import board_add_images
 from utils import mkdir
+from ranger import Ranger
 
 class TOMTrainer:
-    def __init__(self, gen, dis, dataloader_train, dataloader_val, gpu_id, log_freq, save_dir, n_step):
+    def __init__(self, gen, dis, dataloader_train, dataloader_val, gpu_id, log_freq, save_dir, n_step, optimizer='adam'):
         if torch.cuda.is_available():
             self.device = torch.device('cuda:'+str(gpu_id))  
         else:
@@ -22,8 +23,14 @@ class TOMTrainer:
 
         self.dataloader_train = dataloader_train
         self.dataloader_val = dataloader_val
-        self.optim_g = torch.optim.Adam(gen.parameters(), lr=1e-4, betas=(0.5, 0.999))
-        self.optim_d = torch.optim.Adam(dis.parameters(), lr=1e-4, betas=(0.5, 0.999))
+        
+        if optimizer == 'adam' :
+           self.optim_g = torch.optim.Adam(gen.parameters(), lr=1e-4, betas=(0.5, 0.999))
+           self.optim_d = torch.optim.Adam(dis.parameters(), lr=1e-4, betas=(0.5, 0.999))
+        elif optimizer == 'ranger' :
+           self.optim_g = Ranger()
+           self.optim_d = Ranger()
+            
         self.criterionL1 = nn.L1Loss()
         self.criterionVGG = VGGLoss()
         self.criterionAdv = torch.nn.BCELoss()
